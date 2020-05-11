@@ -242,6 +242,11 @@ fun saveSettings() {
     settings.grandfatherMode = grandfatherModeCheckBox.isSelected
     settings.eventSongs = eventSongsCheckBox.isSelected
 
+    saveSettingsToFile()
+    resetPlayers()
+}
+
+fun saveSettingsToFile() {
     val newSettings = mapOf(
         "games" to settings.games.map { it.key },
         "weather" to settings.weather.key,
@@ -257,6 +262,4 @@ fun saveSettings() {
 
     val jsonString = JSONObject(newSettings).toString()
     settingsFile.writeText(jsonString)
-
-    resetPlayers()
 }
