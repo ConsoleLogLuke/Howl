@@ -19,7 +19,7 @@ enum class Game(val key: String) {
     }
 }
 
-enum class Weather(val key: String, val radioButton: JRadioButton) {
+enum class WeatherSetting(val key: String, val radioButton: JRadioButton) {
     AUTOMATIC("automatic", autoWeatherButton),
     SUNNY("sunny", sunnyWeatherButton),
     RAINY("rainy", rainyWeatherButton),
@@ -70,12 +70,12 @@ enum class CicadaSounds(val key: String, val radioButton: JRadioButton) {
     }
 }
 
-enum class CicadaType(val key: String) {
-    BROWN("brown"),
-    EVENING("evening"),
-    GIANT("giant"),
-    ROBUST("robust"),
-    WALKER("walker");
+enum class CicadaType(val key: String, val hours: List<Int>) {
+    BROWN("brown", (8 until 17).toList()),
+    EVENING("evening", (4 until 8) + (16 until 19)),
+    GIANT("giant", (8 until 17).toList()),
+    ROBUST("robust", (8 until 17).toList()),
+    WALKER("walker", (8 until 17).toList());
 
     companion object {
         fun fromKey(key: String) = values().first { it.key == key }
@@ -94,7 +94,7 @@ enum class FireworkSounds(val key: String, val radioButton: JRadioButton) {
 
 data class Settings(
     var games: List<Game>,
-    var weather: Weather,
+    var weather: WeatherSetting,
     var kkSlider: List<KkSlider>,
     var kkSongTypes: List<KkSongType>,
     var rainSounds: RainSounds,
@@ -126,7 +126,7 @@ fun loadSettings() {
 
     val jsonObject = JSONObject(settingsFile.readText())
     val games = jsonObject.getJSONArray("games").map { Game.fromKey(it.toString()) }
-    val weather = Weather.fromKey(jsonObject.getString("weather"))
+    val weather = WeatherSetting.fromKey(jsonObject.getString("weather"))
     val kkSlider = jsonObject.getJSONArray("kkSlider").map { KkSlider.fromKey(it.toString()) }
     val kkSongTypes = jsonObject.getJSONArray("kkSongTypes").map { KkSongType.fromKey(it.toString()) }
     val rainSounds = RainSounds.fromKey(jsonObject.getString("rainSounds"))
@@ -191,11 +191,11 @@ fun saveSettings() {
     settings.games = games
 
     settings.weather = when {
-        autoWeatherButton.isSelected -> Weather.AUTOMATIC
-        sunnyWeatherButton.isSelected -> Weather.SUNNY
-        rainyWeatherButton.isSelected -> Weather.RAINY
-        snowyWeatherButton.isSelected -> Weather.SNOWY
-        else -> Weather.AUTOMATIC
+        autoWeatherButton.isSelected -> WeatherSetting.AUTOMATIC
+        sunnyWeatherButton.isSelected -> WeatherSetting.SUNNY
+        rainyWeatherButton.isSelected -> WeatherSetting.RAINY
+        snowyWeatherButton.isSelected -> WeatherSetting.SNOWY
+        else -> WeatherSetting.AUTOMATIC
     }
 
     val kkSlider = mutableListOf<KkSlider>()
@@ -250,11 +250,13 @@ fun saveSettings() {
         "rainSounds" to settings.rainSounds.key,
         "cicadaSounds" to settings.cicadaSounds.key,
         "cicadaTypes" to settings.cicadaTypes.map { it.key },
-        "fireworkSounds" to settings.fireworkSounds,
+        "fireworkSounds" to settings.fireworkSounds.key,
         "grandfatherMode" to settings.grandfatherMode,
         "eventSongs" to settings.eventSongs
     )
 
     val jsonString = JSONObject(newSettings).toString()
     settingsFile.writeText(jsonString)
+
+    resetPlayers()
 }

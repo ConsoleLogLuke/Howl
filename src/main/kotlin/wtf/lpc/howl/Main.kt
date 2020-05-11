@@ -1,6 +1,7 @@
 package wtf.lpc.howl
 
 import com.formdev.flatlaf.FlatDarkLaf
+import javafx.embed.swing.JFXPanel
 import net.harawata.appdirs.AppDirsFactory
 import java.awt.*
 import java.awt.event.MouseAdapter
@@ -44,6 +45,7 @@ val dataDir = File(AppDirsFactory.getInstance()
 fun main() {
     FlatDarkLaf.install()
     ToolTipManager.sharedInstance().dismissDelay = Integer.MAX_VALUE
+    JFXPanel()
 
     frame = JFrame()
     frame.setSize(300, 80)
@@ -160,6 +162,7 @@ fun main() {
     minimizeButton.addActionListener { frame.state = Frame.ICONIFIED }
     windowButtonPanel.add(minimizeButton)
 
+    resetPlayers()
     frame.isVisible = true
 }
 
