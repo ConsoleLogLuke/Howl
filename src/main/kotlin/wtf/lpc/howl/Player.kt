@@ -7,11 +7,11 @@ import java.time.LocalDateTime
 
 var currentEvent: Event? = null
 
-lateinit var hourlyMusicPlayer: MediaPlayer
-lateinit var kkSliderMusicPlayer: MediaPlayer
-lateinit var rainSoundsMusicPlayer: MediaPlayer
-val cicadaSoundsMusicPlayers = mutableMapOf<CicadaType, MediaPlayer>()
-lateinit var fireworkSoundsMusicPlayer: MediaPlayer
+var hourlyMusicPlayer: MediaPlayer? = null
+var kkSliderMusicPlayer: MediaPlayer? = null
+var rainSoundsMusicPlayer: MediaPlayer? = null
+var cicadaSoundsMusicPlayers = mutableMapOf<CicadaType, MediaPlayer>()
+var fireworkSoundsMusicPlayer: MediaPlayer? = null
 
 enum class Event {
     NEW_YEARS_DAY,
@@ -40,22 +40,18 @@ fun twentyFourToTwelve(hour: Int): TwelveHour {
 }
 
 fun playRainSounds(weather: Weather) {
-    if (settings.rainSounds == RainSounds.NO_RAIN_SOUNDS || weather != Weather.RAINY) {
-        if (::rainSoundsMusicPlayer.isInitialized) rainSoundsMusicPlayer.stop()
-        return
-    }
+    if (settings.rainSounds == RainSounds.NO_RAIN_SOUNDS || weather != Weather.RAINY) return
     val file = getAsset("weatherSounds", "${settings.rainSounds.key}.mp3")
     val media = Media(file.toURI().toString())
     rainSoundsMusicPlayer = MediaPlayer(media)
-    rainSoundsMusicPlayer.setOnEndOfMedia {
-        rainSoundsMusicPlayer.seek(Duration.ZERO)
-        rainSoundsMusicPlayer.play()
+    rainSoundsMusicPlayer?.setOnEndOfMedia {
+        rainSoundsMusicPlayer?.seek(Duration.ZERO)
+        rainSoundsMusicPlayer?.play()
     }
-    rainSoundsMusicPlayer.play()
+    rainSoundsMusicPlayer?.play()
 }
 
 fun playCicadaSounds(dateTime: LocalDateTime) {
-    for (player in cicadaSoundsMusicPlayers) player.value.stop()
     if (settings.cicadaSounds == CicadaSounds.NO_CICADA_SOUNDS) return
     for (cicadaType in settings.cicadaTypes) {
         if (settings.cicadaSounds == CicadaSounds.TIMED && dateTime.hour !in cicadaType.hours) continue
@@ -74,21 +70,37 @@ fun playFireworkSounds() {
     if (
         settings.fireworkSounds == FireworkSounds.NO_FIREWORK_SOUNDS ||
         (settings.fireworkSounds == FireworkSounds.DURING_FIREWORK_SHOWS && currentEvent != Event.FIREWORK_SHOW)
-    ) {
-        if (::fireworkSoundsMusicPlayer.isInitialized) fireworkSoundsMusicPlayer.stop()
-        return
-    }
+    ) return
     val file = getAsset("fireworks.mp3")
     val media = Media(file.toURI().toString())
     fireworkSoundsMusicPlayer = MediaPlayer(media)
-    fireworkSoundsMusicPlayer.setOnEndOfMedia {
-        fireworkSoundsMusicPlayer.seek(Duration.ZERO)
-        fireworkSoundsMusicPlayer.play()
+    fireworkSoundsMusicPlayer?.setOnEndOfMedia {
+        fireworkSoundsMusicPlayer?.seek(Duration.ZERO)
+        fireworkSoundsMusicPlayer?.play()
     }
-    fireworkSoundsMusicPlayer.play()
+    fireworkSoundsMusicPlayer?.play()
+}
+
+fun stopPlayers() {
+    hourlyMusicPlayer?.stop()
+    hourlyMusicPlayer = null
+
+    kkSliderMusicPlayer?.stop()
+    kkSliderMusicPlayer = null
+
+    rainSoundsMusicPlayer?.stop()
+    rainSoundsMusicPlayer = null
+
+    cicadaSoundsMusicPlayers.forEach { it.value.stop() }
+    cicadaSoundsMusicPlayers = mutableMapOf()
+
+    fireworkSoundsMusicPlayer?.stop()
+    fireworkSoundsMusicPlayer = null
 }
 
 fun resetPlayers() {
+    stopPlayers()
+
     val dateTime = LocalDateTime.now()
     val weather = getWeather()
 
