@@ -1,6 +1,12 @@
 package wtf.lpc.howl
 
-enum class Weather { SUNNY, RAINY, SNOWY }
+import javax.swing.ImageIcon
+
+enum class Weather(val icon: ImageIcon) {
+    SUNNY(sunnyIcon),
+    RAINY(rainyIcon),
+    SNOWY(snowyIcon)
+}
 
 fun getWeather() = when (settings.weather) {
     WeatherSetting.AUTOMATIC -> Weather.SUNNY

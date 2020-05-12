@@ -99,13 +99,19 @@ fun stopPlayers() {
     fireworkSoundsMusicPlayer = null
 }
 
-fun resetPlayers() {
+fun resetPlayers(dateTime: LocalDateTime, weather: Weather) {
     stopPlayers()
 
-    val dateTime = LocalDateTime.now()
-    val weather = getWeather()
+    timeLabel.text = twentyFourToTwelve(dateTime.hour).toNiceString()
+    weatherLabel.icon = weather.icon
 
     playRainSounds(weather)
     playCicadaSounds(dateTime)
     playFireworkSounds()
+}
+
+fun resetPlayers() {
+    val dateTime = LocalDateTime.now()
+    val weather = getWeather()
+    resetPlayers(dateTime, weather)
 }

@@ -174,7 +174,7 @@ fun main() {
     minimizeButton.addActionListener { frame.state = Frame.ICONIFIED }
     windowButtonPanel.add(minimizeButton)
 
-    resetPlayers()
+    startMainLoop()
     frame.isVisible = true
 }
 
