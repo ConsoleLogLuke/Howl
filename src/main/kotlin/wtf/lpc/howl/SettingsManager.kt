@@ -8,11 +8,11 @@ lateinit var settings: Settings
 
 val settingsFile = File(dataDir, "settings.json")
 
-enum class Game(val key: String) {
-    ANIMAL_CROSSING("animalCrossing"),
-    WILD_WORLD("wildWorld"),
-    NEW_LEAF("newLeaf"),
-    NEW_HORIZONS("newHorizons");
+enum class Game(val key: String, val initials: String) {
+    ANIMAL_CROSSING("animalCrossing", "AC"),
+    WILD_WORLD("wildWorld", "WW"),
+    NEW_LEAF("newLeaf", "NL"),
+    NEW_HORIZONS("newHorizons", "NH");
 
     companion object {
         fun fromKey(key: String) = values().first { it.key == key }

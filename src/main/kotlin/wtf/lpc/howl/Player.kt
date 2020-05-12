@@ -40,6 +40,26 @@ fun twentyFourToTwelve(hour: Int): TwelveHour {
     return TwelveHour(twelveHour, period)
 }
 
+fun playHourlyMusic(dateTime: LocalDateTime, weather: Weather) {
+    // TODO Check for KK
+    // TODO Check for events
+
+    val game = settings.games.random()
+    val weatherString = weather.toString().toLowerCase()
+    val timeString = twentyFourToTwelve(dateTime.hour).toInternalString()
+
+    val file = getAsset("hourlyMusic", game.key, weatherString, "$timeString.mp3")
+    val media = Media(file.toURI().toString())
+    hourlyMusicPlayer = MediaPlayer(media)
+    hourlyMusicPlayer?.setOnEndOfMedia {
+        hourlyMusicPlayer?.seek(Duration.ZERO)
+        hourlyMusicPlayer?.play()
+    }
+    hourlyMusicPlayer?.play()
+
+    gameLabel.text = game.initials
+}
+
 fun playRainSounds(weather: Weather) {
     if (settings.rainSounds == RainSounds.NO_RAIN_SOUNDS || weather != Weather.RAINY) return
     val file = getAsset("weatherSounds", "${settings.rainSounds.key}.mp3")
@@ -105,6 +125,7 @@ fun resetPlayers(dateTime: LocalDateTime, weather: Weather) {
     timeLabel.text = twentyFourToTwelve(dateTime.hour).toNiceString()
     weatherLabel.icon = weather.icon
 
+    playHourlyMusic(dateTime, weather)
     playRainSounds(weather)
     playCicadaSounds(dateTime)
     playFireworkSounds()
