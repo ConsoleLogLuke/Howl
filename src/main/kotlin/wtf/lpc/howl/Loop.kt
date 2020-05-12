@@ -16,7 +16,7 @@ fun startMainLoop() {
             else {
                 val twelveHour = twentyFourToTwelve(hour)
                 timeLabel.text = twelveHour.toNiceString()
-                weatherLabel.icon = weather.icon
+                weatherLabel.icon = if (hour >= 19) weather.nightIcon else weather.dayIcon
             }
         }
     }

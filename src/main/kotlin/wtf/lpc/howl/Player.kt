@@ -119,6 +119,8 @@ fun twentyFourToTwelve(hour: Int): TwelveHour {
 fun playHourlyMusic(dateTime: LocalDateTime, weather: Weather) {
     lateinit var file: File
 
+    // TODO Check for KK
+
     var event: Event? = null
     val dayOfYear = DayOfYear.today()
     eventTypes@ for (eventType in Event.values()) {
@@ -138,10 +140,17 @@ fun playHourlyMusic(dateTime: LocalDateTime, weather: Weather) {
 
         file = getAsset("hourlyMusic", game.key, weatherString, "$timeString.mp3")
         gameLabel.text = game.initials
+        gameLabel.icon = null
     } else {
+        currentEvent = event
+
         if (event in listOf(Event.NEW_YEARS_DAY, Event.NEW_YEARS_EVE)) {
             // TODO New Year's events
         } else file = getAsset("eventMusic", "${event.key}.mp3")
+
+        val imageIcon = getIcon("events${File.separator}${event.key}.png", 24, 24)
+        gameLabel.icon = imageIcon
+        gameLabel.text = null
     }
 
     val media = Media(file.toURI().toString())
@@ -181,6 +190,7 @@ fun playCicadaSounds(dateTime: LocalDateTime) {
 }
 
 fun playFireworkSounds() {
+    println(settings.fireworkSounds)
     if (
         settings.fireworkSounds == FireworkSounds.NO_FIREWORK_SOUNDS ||
         (settings.fireworkSounds == FireworkSounds.DURING_FIREWORK_SHOWS && currentEvent != Event.FIREWORK_SHOW)
@@ -215,7 +225,7 @@ fun resetPlayers(dateTime: LocalDateTime, weather: Weather) {
     stopPlayers()
 
     timeLabel.text = twentyFourToTwelve(dateTime.hour).toNiceString()
-    weatherLabel.icon = weather.icon
+    weatherLabel.icon = if (dateTime.hour >= 19) weather.nightIcon else weather.dayIcon
 
     playHourlyMusic(dateTime, weather)
     playRainSounds(weather)
