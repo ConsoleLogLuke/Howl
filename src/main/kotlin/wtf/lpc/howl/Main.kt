@@ -106,6 +106,18 @@ fun main() {
     playPauseButton = JButton(pauseIcon)
     playPauseButton.border = BorderFactory.createEmptyBorder()
     playPauseButton.isContentAreaFilled = false
+    playPauseButton.addActionListener {
+        if (paused) {
+            playPauseButton.icon = pauseIcon
+            playPauseButton.toolTipText = "Pause"
+            resetPlayers()
+        } else {
+            playPauseButton.icon = playIcon
+            playPauseButton.toolTipText = "Play"
+            stopPlayers()
+        }
+        paused = !paused
+    }
     playPauseButton.toolTipText = "Pause"
     statusPanel.add(playPauseButton)
 

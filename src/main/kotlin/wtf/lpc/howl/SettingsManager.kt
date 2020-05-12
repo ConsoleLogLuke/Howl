@@ -258,5 +258,5 @@ fun saveSettings() {
     val jsonString = JSONObject(newSettings).toString()
     settingsFile.writeText(jsonString)
 
-    resetPlayers()
+    if (!paused) resetPlayers()
 }

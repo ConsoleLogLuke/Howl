@@ -5,6 +5,7 @@ import javafx.scene.media.MediaPlayer
 import javafx.util.Duration
 import java.time.LocalDateTime
 
+var paused = false
 var currentEvent: Event? = null
 
 var hourlyMusicPlayer: MediaPlayer? = null
