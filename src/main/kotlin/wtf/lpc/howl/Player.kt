@@ -3,26 +3,102 @@ package wtf.lpc.howl
 import javafx.scene.media.Media
 import javafx.scene.media.MediaPlayer
 import javafx.util.Duration
+import java.io.File
+import java.time.DayOfWeek
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.Month
+import java.time.temporal.TemporalAdjusters
 
 var paused = false
 var currentEvent: Event? = null
 
 var hourlyMusicPlayer: MediaPlayer? = null
-var kkSliderMusicPlayer: MediaPlayer? = null
 var rainSoundsMusicPlayer: MediaPlayer? = null
 var cicadaSoundsMusicPlayers = mutableMapOf<CicadaType, MediaPlayer>()
 var fireworkSoundsMusicPlayer: MediaPlayer? = null
 
-enum class Event {
-    NEW_YEARS_DAY,
-    FESTIVALE,
-    BUNNY_DAY,
-    FIREWORK_SHOW,
-    HALLOWEEN,
-    HARVEST_FESTIVAL,
-    TOY_DAY,
-    NEW_YEARS_EVE
+data class DayOfYear(val month: Month, val day: Int) {
+    companion object {
+        fun today() = fromLocalDate(LocalDate.now())
+
+        fun fromLocalDate(localDate: LocalDate) = DayOfYear(localDate.month, localDate.dayOfMonth)
+
+        fun fromDayOfWeek(ordinal: Int, day: DayOfWeek, month: Month) : DayOfYear? {
+            val startLocalDate = LocalDate.of(LocalDate.now().year, month, 1)
+            val localDate = startLocalDate.with(TemporalAdjusters.dayOfWeekInMonth(ordinal, day))
+            if (localDate.month != month) return null
+            return fromLocalDate(localDate)
+        }
+    }
+}
+
+fun calculateEaster() : LocalDate {
+    val year = LocalDate.now().year
+    val a = year % 19
+    val b = year / 100
+    val c = year % 100
+    val d = b / 4
+    val e = b % 4
+    val f = (b + 8) / 25
+    val g = (b - f + 1) / 3
+    val h = (19 * a + b - d - g + 15) % 30
+    val i = c / 4
+    val k = c % 4
+    val l = (32 + 2 * e + 2 * i - h - k) % 7
+    val m = (a + 11 * h + 22 * l) / 451
+    val month = (h + l - 7 * m + 114) / 31
+    val day = (h + l - 7 * m + 114) % 31 + 1
+    return LocalDate.of(year, month, day)
+}
+
+enum class Event(val key: String, val dates: List<DayOfYear?>, val times: IntRange) {
+    NEW_YEARS_DAY(
+        "newYears${File.separator}eve",
+        listOf(DayOfYear(Month.JANUARY, 1)),
+        0 until 24
+    ),
+    FESTIVALE(
+        "festivale",
+        listOf(DayOfYear.fromLocalDate(calculateEaster().minusDays(48))),
+        0 until 24
+    ),
+    BUNNY_DAY(
+        "bunnyDay",
+        listOf(DayOfYear.fromLocalDate(calculateEaster())),
+        0 until 24
+    ),
+    FIREWORK_SHOW(
+        "fireworksShow",
+        listOf(
+            DayOfYear.fromDayOfWeek(1, DayOfWeek.SUNDAY, Month.AUGUST),
+            DayOfYear.fromDayOfWeek(2, DayOfWeek.SUNDAY, Month.AUGUST),
+            DayOfYear.fromDayOfWeek(3, DayOfWeek.SUNDAY, Month.AUGUST),
+            DayOfYear.fromDayOfWeek(4, DayOfWeek.SUNDAY, Month.AUGUST),
+            DayOfYear.fromDayOfWeek(5, DayOfWeek.SUNDAY, Month.AUGUST)
+        ),
+        19 until 24
+    ),
+    HALLOWEEN(
+        "halloween",
+        listOf(DayOfYear(Month.OCTOBER, 31)),
+        18 until 24
+    ),
+    HARVEST_FESTIVAL(
+        "harvestFestival",
+        listOf(DayOfYear.fromDayOfWeek(4, DayOfWeek.THURSDAY, Month.NOVEMBER)),
+        0 until 24
+    ),
+    TOY_DAY(
+        "toyDay",
+        listOf(DayOfYear(Month.DECEMBER, 24)),
+        18 until 24
+    ),
+    NEW_YEARS_EVE(
+        "newYears${File.separator}day",
+        listOf(DayOfYear(Month.DECEMBER, 31)),
+        23 until 24
+    )
 }
 
 enum class PeriodOfDay { AM, PM }
@@ -41,14 +117,33 @@ fun twentyFourToTwelve(hour: Int): TwelveHour {
 }
 
 fun playHourlyMusic(dateTime: LocalDateTime, weather: Weather) {
-    // TODO Check for KK
-    // TODO Check for events
+    lateinit var file: File
 
-    val game = settings.games.random()
-    val weatherString = weather.toString().toLowerCase()
-    val timeString = twentyFourToTwelve(dateTime.hour).toInternalString()
+    var event: Event? = null
+    val dayOfYear = DayOfYear.today()
+    eventTypes@ for (eventType in Event.values()) {
+        if (dateTime.hour !in eventType.times) continue
+        for (date in eventType.dates) {
+            if (date == dayOfYear) {
+                event = eventType
+                break@eventTypes
+            }
+        }
+    }
 
-    val file = getAsset("hourlyMusic", game.key, weatherString, "$timeString.mp3")
+    if (event == null) {
+        val game = settings.games.random()
+        val weatherString = weather.toString().toLowerCase()
+        val timeString = twentyFourToTwelve(dateTime.hour).toInternalString()
+
+        file = getAsset("hourlyMusic", game.key, weatherString, "$timeString.mp3")
+        gameLabel.text = game.initials
+    } else {
+        if (event in listOf(Event.NEW_YEARS_DAY, Event.NEW_YEARS_EVE)) {
+            // TODO New Year's events
+        } else file = getAsset("eventMusic", "${event.key}.mp3")
+    }
+
     val media = Media(file.toURI().toString())
     hourlyMusicPlayer = MediaPlayer(media)
     hourlyMusicPlayer?.setOnEndOfMedia {
@@ -56,8 +151,6 @@ fun playHourlyMusic(dateTime: LocalDateTime, weather: Weather) {
         hourlyMusicPlayer?.play()
     }
     hourlyMusicPlayer?.play()
-
-    gameLabel.text = game.initials
 }
 
 fun playRainSounds(weather: Weather) {
@@ -103,11 +196,10 @@ fun playFireworkSounds() {
 }
 
 fun stopPlayers() {
+    currentEvent = null
+
     hourlyMusicPlayer?.stop()
     hourlyMusicPlayer = null
-
-    kkSliderMusicPlayer?.stop()
-    kkSliderMusicPlayer = null
 
     rainSoundsMusicPlayer?.stop()
     rainSoundsMusicPlayer = null
