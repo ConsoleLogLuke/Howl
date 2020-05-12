@@ -190,7 +190,6 @@ fun playCicadaSounds(dateTime: LocalDateTime) {
 }
 
 fun playFireworkSounds() {
-    println(settings.fireworkSounds)
     if (
         settings.fireworkSounds == FireworkSounds.NO_FIREWORK_SOUNDS ||
         (settings.fireworkSounds == FireworkSounds.DURING_FIREWORK_SHOWS && currentEvent != Event.FIREWORK_SHOW)
@@ -225,7 +224,7 @@ fun resetPlayers(dateTime: LocalDateTime, weather: Weather) {
     stopPlayers()
 
     timeLabel.text = twentyFourToTwelve(dateTime.hour).toNiceString()
-    weatherLabel.icon = if (dateTime.hour >= 19) weather.nightIcon else weather.dayIcon
+    weatherLabel.icon = if (isNight(dateTime.hour)) weather.nightIcon else weather.dayIcon
 
     playHourlyMusic(dateTime, weather)
     playRainSounds(weather)

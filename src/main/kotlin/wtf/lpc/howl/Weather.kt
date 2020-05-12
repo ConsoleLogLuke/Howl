@@ -8,6 +8,8 @@ enum class Weather(val dayIcon: ImageIcon, val nightIcon: ImageIcon) {
     SNOWY(snowyIcon, snowyIcon)
 }
 
+fun isNight(hour: Int) = hour <= 6 || hour >= 19
+
 fun getWeather() = when (settings.weather) {
     WeatherSetting.AUTOMATIC -> Weather.SUNNY
     WeatherSetting.SUNNY -> Weather.SUNNY
