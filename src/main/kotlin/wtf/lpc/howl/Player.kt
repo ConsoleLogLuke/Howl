@@ -19,6 +19,7 @@ var cicadaSoundsMusicPlayers = mutableMapOf<CicadaType, MediaPlayer>()
 var fireworkSoundsMusicPlayer: MediaPlayer? = null
 
 // TODO Cut the songs for nice transitions
+// TODO Smooth transitions when players need to be reset
 
 data class DayOfYear(val month: Month, val day: Int) {
     companion object {

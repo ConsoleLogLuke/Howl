@@ -185,7 +185,8 @@ fun main() {
 }
 
 fun getIcon(name: String, width: Int, height: Int) : ImageIcon {
-    val image = ImageIO.read({}.javaClass.classLoader.getResource("icons${File.separator}$name"))
+    val resource = {}.javaClass.classLoader.getResource("icons/$name")
+    val image = ImageIO.read(resource)
     val scaled = image.getScaledInstance(width, height, Image.SCALE_SMOOTH)
     return ImageIcon(scaled)
 }
