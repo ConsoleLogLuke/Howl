@@ -52,9 +52,26 @@ fun calculateEaster() : LocalDate {
     return LocalDate.of(year, month, day)
 }
 
+fun getNewYearSong(dateTime: LocalDateTime) : String {
+    return if (dateTime.month == Month.DECEMBER) {
+        when {
+            dateTime.minute >= 55 -> "2355"
+            dateTime.minute >= 50 -> "2350"
+            dateTime.minute >= 30 -> "2330"
+            else -> "2300"
+        }
+    } else {
+        when {
+            dateTime.hour >= 6 -> "0600"
+            dateTime.hour >= 2 -> "0200"
+            else -> "0000"
+        }
+    }
+}
+
 enum class Event(val key: String, val dates: List<DayOfYear?>, val times: IntRange) {
     NEW_YEARS_DAY(
-        "newYears${File.separator}eve",
+        "newYears${File.separator}day",
         listOf(DayOfYear(Month.JANUARY, 1)),
         0 until 24
     ),
@@ -95,7 +112,7 @@ enum class Event(val key: String, val dates: List<DayOfYear?>, val times: IntRan
         18 until 24
     ),
     NEW_YEARS_EVE(
-        "newYears${File.separator}day",
+        "newYears${File.separator}eve",
         listOf(DayOfYear(Month.DECEMBER, 31)),
         23 until 24
     )
@@ -144,11 +161,17 @@ fun playHourlyMusic(dateTime: LocalDateTime, weather: Weather) {
     } else {
         currentEvent = event
 
-        if (event in listOf(Event.NEW_YEARS_DAY, Event.NEW_YEARS_EVE)) {
-            // TODO New Year's events
-        } else file = getAsset("eventMusic", "${event.key}.mp3")
+        val isNewYear = event in listOf(Event.NEW_YEARS_DAY, Event.NEW_YEARS_EVE)
+        file = if (isNewYear) {
+            val newYearSong = getNewYearSong(dateTime)
+            getAsset("eventMusic", event.key, "${newYearSong}.mp3")
+        } else getAsset("eventMusic", "${event.key}.mp3")
 
-        val imageIcon = getIcon("events${File.separator}${event.key}.png", 24, 24)
+        val imageIcon = getIcon(
+            "events${File.separator}${if (isNewYear) "newYears" else event.key}.png",
+            24,
+            24
+        )
         gameLabel.icon = imageIcon
         gameLabel.text = null
     }
