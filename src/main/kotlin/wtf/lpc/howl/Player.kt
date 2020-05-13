@@ -18,6 +18,8 @@ var rainSoundsMusicPlayer: MediaPlayer? = null
 var cicadaSoundsMusicPlayers = mutableMapOf<CicadaType, MediaPlayer>()
 var fireworkSoundsMusicPlayer: MediaPlayer? = null
 
+// TODO Cut the songs for nice transitions
+
 data class DayOfYear(val month: Month, val day: Int) {
     companion object {
         fun today() = fromLocalDate(LocalDate.now())
@@ -133,10 +135,21 @@ fun twentyFourToTwelve(hour: Int): TwelveHour {
     return TwelveHour(twelveHour, period)
 }
 
+fun playNextKkSong() {
+    gameLabel.icon = kkSliderIcon
+    gameLabel.text = null
+    val songType = settings.kkSongTypes.random()
+    val songDir = getAsset("kkSlider", songType.key)
+    val songFile = songDir.listFiles()?.random()
+    val media = Media(songFile?.toURI().toString())
+    hourlyMusicPlayer = MediaPlayer(media)
+    // TODO Much better implementation for grandfather mode
+    if (!settings.grandfatherMode) { hourlyMusicPlayer?.setOnEndOfMedia { playNextKkSong() } }
+    hourlyMusicPlayer?.play()
+}
+
 fun playHourlyMusic(dateTime: LocalDateTime, weather: Weather) {
     lateinit var file: File
-
-    // TODO Check for KK
 
     var event: Event? = null
     if (settings.eventSongs) {
@@ -151,6 +164,17 @@ fun playHourlyMusic(dateTime: LocalDateTime, weather: Weather) {
             }
         }
     }
+
+    if (
+        KkSlider.KK_SLIDER in settings.kkSlider &&
+        dateTime.dayOfWeek == DayOfWeek.SATURDAY &&
+        dateTime.hour in 20 until 24
+    ) {
+        playNextKkSong()
+        return
+    }
+
+    // TODO Check for DJ KK
 
     if (event == null) {
         val game = settings.games.random()
@@ -218,10 +242,9 @@ fun playCicadaSounds(dateTime: LocalDateTime) {
 }
 
 fun playFireworkSounds() {
-    if (
-        settings.fireworkSounds == FireworkSounds.NO_FIREWORK_SOUNDS ||
-        (settings.fireworkSounds == FireworkSounds.DURING_FIREWORK_SHOWS && currentEvent != Event.FIREWORK_SHOW)
-    ) return
+    val notFireworkShow = settings.fireworkSounds == FireworkSounds.DURING_FIREWORK_SHOWS &&
+            currentEvent != Event.FIREWORK_SHOW
+    if (settings.fireworkSounds == FireworkSounds.NO_FIREWORK_SOUNDS || notFireworkShow) return
     val file = getAsset("fireworks.mp3")
     val media = Media(file.toURI().toString())
     fireworkSoundsMusicPlayer = MediaPlayer(media)

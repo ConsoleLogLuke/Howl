@@ -323,7 +323,8 @@ fun initSettings() {
     eventSongsCheckBox.toolTipText = "Play the event songs on the days of in-game events.\n" +
             "All event songs are ripped from New Leaf, and the game setting doesn't affect event music.\n" +
             "These events are New Year's Day, Festivale, Bunny Day, Fireworks Shows, Halloween, Harvest Festival, " +
-            "Toy Day, and New Year's Eve."
+            "Toy Day, and New Year's Eve.\n" +
+            "K.K. Slider will take priority if the event is all day, otherwise the event will take priority."
     rightPanel.add(eventSongsCheckBox)
 
     hoverLabel = JLabel("Hover over any section title or setting to get a detailed description of it.")

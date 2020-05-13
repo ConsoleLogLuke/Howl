@@ -29,6 +29,8 @@ lateinit var settingsButton: JButton
 
 lateinit var clearNightIcon: ImageIcon
 lateinit var closeIcon: ImageIcon
+lateinit var djKkIcon: ImageIcon
+lateinit var kkSliderIcon: ImageIcon
 lateinit var minimizeIcon: ImageIcon
 lateinit var pauseIcon: ImageIcon
 lateinit var playIcon: ImageIcon
@@ -92,6 +94,8 @@ fun main() {
 
     clearNightIcon = getIcon("clearNight.png", 24, 24)
     closeIcon = getIcon("close.png", 20, 20)
+    djKkIcon = getIcon("djKk.png", 24, 24)
+    kkSliderIcon = getIcon("kkSlider.png", 24, 24)
     minimizeIcon = getIcon("minimize.png", 20, 20)
     pauseIcon = getIcon("pause.png", 24, 24)
     playIcon = getIcon("play.png", 24, 24)
