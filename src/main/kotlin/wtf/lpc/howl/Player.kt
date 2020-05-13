@@ -181,7 +181,7 @@ fun playHourlyMusic(dateTime: LocalDateTime, weather: Weather) {
     val media = Media(file.toURI().toString())
     hourlyMusicPlayer = MediaPlayer(media)
     // TODO Much better implementation for grandfather mode
-    if (settings.grandfatherMode) {
+    if (!settings.grandfatherMode) {
         hourlyMusicPlayer?.setOnEndOfMedia {
             hourlyMusicPlayer?.seek(Duration.ZERO)
             hourlyMusicPlayer?.play()
