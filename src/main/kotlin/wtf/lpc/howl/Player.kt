@@ -139,13 +139,15 @@ fun playHourlyMusic(dateTime: LocalDateTime, weather: Weather) {
     // TODO Check for KK
 
     var event: Event? = null
-    val dayOfYear = DayOfYear.today()
-    eventTypes@ for (eventType in Event.values()) {
-        if (dateTime.hour !in eventType.times) continue
-        for (date in eventType.dates) {
-            if (date == dayOfYear) {
-                event = eventType
-                break@eventTypes
+    if (settings.eventSongs) {
+        val dayOfYear = DayOfYear.today()
+        eventTypes@ for (eventType in Event.values()) {
+            if (dateTime.hour !in eventType.times) continue
+            for (date in eventType.dates) {
+                if (date == dayOfYear) {
+                    event = eventType
+                    break@eventTypes
+                }
             }
         }
     }
