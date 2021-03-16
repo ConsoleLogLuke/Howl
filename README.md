@@ -8,4 +8,4 @@
 
 ## Note
 
-This project isn't maintained much anymore, but check out (no pun intended) the `java-rewrite` branch if you want to see the latest (incomplete) version which was completely rewritten in Java.
+This project isn't maintained much anymore, but check out the `java-rewrite` branch if you want to see the latest (incomplete) version which was completely rewritten in Java.
